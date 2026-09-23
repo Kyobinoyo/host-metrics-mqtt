@@ -191,8 +191,6 @@ the entities.
   entity IDs back, even if the names changed. Rename entity IDs in Home Assistant if needed.
 - Rates are averages over one interval.
 - *Pending updates* only counts; it does not run `apt update` (the `apt-daily.timer` does).
-- `tailscale0` is usually not worth monitoring: traffic handled by `tailscale serve`
-  never passes through the interface.
 
 ## Tested on
 
