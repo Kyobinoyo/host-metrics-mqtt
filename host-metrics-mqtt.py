@@ -29,7 +29,7 @@ import threading
 import time
 
 __version__ = "0.3.0"
-PROJECT_URL = "https://github.com/"  # adjust once published
+PROJECT_URL = "https://github.com/Kyobinoyo/host-metrics-mqtt"
 
 log = logging.getLogger("host-metrics-mqtt")
 
