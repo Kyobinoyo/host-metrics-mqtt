@@ -76,6 +76,9 @@ would miss.
 On Debian, Ubuntu or Raspberry Pi OS:
 
 ```bash
+git clone https://github.com/Kyobinoyo/host-metrics-mqtt.git
+cd host-metrics-mqtt
+
 sudo apt install python3-psutil python3-yaml python3-paho-mqtt
 sudo useradd --system --no-create-home --shell /usr/sbin/nologin host-metrics
 
@@ -195,6 +198,11 @@ the entities.
 
 - Raspberry Pi 4 Model B, Raspberry Pi OS 11 (bullseye), systemd 247
 - paho-mqtt 1.5.1, 1.6.1 and 2.1
+
+## Feedback
+
+Bugs and ideas are welcome as
+[issues](https://github.com/Kyobinoyo/host-metrics-mqtt/issues).
 
 ## Credits
 
