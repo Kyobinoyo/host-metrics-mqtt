@@ -16,6 +16,17 @@ device per host — no YAML in Home Assistant needed.
 It runs on any Linux machine. On a **Raspberry Pi** it additionally reports
 under-voltage and throttling, and it watches the typical symptoms of a failing SD card.
 
+![Device page in Home Assistant](docs/device-page.png)
+
+<details>
+<summary>More screenshots</summary>
+
+| All sensors | Diagnostic |
+|---|---|
+| ![Sensors](docs/sensors.png) | ![Diagnostic](docs/diagnostic.png) |
+
+</details>
+
 ## Features
 
 - **Zero configuration in Home Assistant** — entities appear under
@@ -69,9 +80,37 @@ would miss.
 
 - Linux with systemd
 - Python ≥ 3.7 with `psutil`, `PyYAML` and `paho-mqtt`
-- An MQTT broker, e.g. the Mosquitto app in Home Assistant, with MQTT discovery enabled
+- An MQTT broker, e.g. the Mosquitto app in Home Assistant or a standalone Mosquitto
+- The **MQTT integration** set up in Home Assistant
+  (*Settings → Devices & services → Add integration → MQTT*). A running broker alone
+  is not enough — without the integration no entities show up. Discovery is enabled
+  by default.
 
-## Installation
+## Step 1: Create an MQTT user
+
+The service logs in to the broker with its own user. Give every host its own user
+instead of sharing one — you can then revoke a single host and see in the broker log
+who connects.
+
+**Mosquitto app in Home Assistant:** add the user under `logins` in the app
+configuration (*Settings → Apps → Mosquitto broker → Configuration*, ⋮ → *Edit in YAML*;
+called *Add-ons* in older versions) and restart the app:
+
+```yaml
+logins:
+  - username: myhost
+    password: secret
+```
+
+**Standalone Mosquitto:** add the user to the file set as `password_file` in your
+`mosquitto.conf` and reload the broker:
+
+```bash
+sudo mosquitto_passwd /etc/mosquitto/passwd myhost
+sudo systemctl reload mosquitto
+```
+
+## Step 2: Installation
 
 On Debian, Ubuntu or Raspberry Pi OS:
 
@@ -89,6 +128,9 @@ sudo install -d -m 700 /etc/host-metrics-mqtt
 sudo install -m 600 config.example.yaml /etc/host-metrics-mqtt/config.yaml
 sudo nano /etc/host-metrics-mqtt/config.yaml
 ```
+
+In the config, set at least the broker address and the MQTT user from step 1 —
+see [Configuration](#configuration) for examples.
 
 Test the configuration — this prints what would be sent, without connecting:
 
@@ -111,7 +153,9 @@ The log should show `connected to <broker>` and `discovery published (… entiti
 
 All options with their defaults are listed in [`config.example.yaml`](config.example.yaml).
 Unknown keys and wrong types stop the program with a clear message instead of being
-silently ignored. A minimal config:
+silently ignored.
+
+**Example: Linux server or VM**
 
 ```yaml
 mqtt:
@@ -120,7 +164,31 @@ mqtt:
   password: 'secret'
 
 device:
-  name: My Host
+  name: My Server
+
+metrics:
+  disks:
+    /: System disk
+    /mnt/data: Data disk
+  network:
+    eth0: LAN
+  block_devices:
+    sda: System SSD
+```
+
+Find your mount points with `df -h`, interfaces with `ip -br link` and block devices
+with `lsblk -d`.
+
+**Example: Raspberry Pi with SD card** (current Raspberry Pi OS)
+
+```yaml
+mqtt:
+  host: 192.168.1.10
+  username: mypi
+  password: 'secret'
+
+device:
+  name: My Pi
 
 metrics:
   disks:
@@ -132,6 +200,9 @@ metrics:
     mmcblk0: SD card
 ```
 
+On Raspberry Pi OS 11 (bullseye) and older the boot partition is mounted at `/boot`
+instead of `/boot/firmware`.
+
 `disks`, `network` and `block_devices` take either a list (`[/, /boot]`) or a mapping
 to a label. Without a label, `/` is called *Root filesystem*, `/boot` *Boot partition*
 and `mmcblk0` *SD card*.
@@ -141,18 +212,6 @@ character; a `'` inside single quotes is written as `''`.
 
 **Language:** `general.language: en` (default) or `de` changes entity names and the
 yes/no values.
-
-## MQTT broker
-
-Give every host its own MQTT user instead of sharing one — you can then revoke a
-single host and see in the broker log who connects. With the Mosquitto app in Home
-Assistant, add the user under `logins` in the app configuration:
-
-```yaml
-logins:
-  - username: myhost
-    password: secret
-```
 
 ## Security
 
