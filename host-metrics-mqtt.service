@@ -1,6 +1,6 @@
 [Unit]
 Description=Publish host metrics to Home Assistant via MQTT
-Documentation=https://hub.monkey-pride.ts.net:3030/kyobinoyo/olympus-documentation/src/branch/main/hosts/iris.md
+Documentation=https://github.com/Kyobinoyo/host-metrics-mqtt
 Wants=network-online.target
 After=network-online.target
 
@@ -11,9 +11,13 @@ Group=host-metrics
 # vcgencmd fallback on a Raspberry Pi needs the video group.
 SupplementaryGroups=video
 
-# Config stays root-only on disk; systemd hands a private copy to the service.
-LoadCredential=config:/etc/host-metrics-mqtt/config.yaml
-ExecStart=/usr/bin/python3 /opt/homelab-scripts/host-metrics-mqtt.py
+# The config stays root-only on disk. Before each start systemd copies it - as
+# root, that is the "+" - into a runtime directory only the service user can read.
+# (Not LoadCredential=: systemd 247 on Debian 11 fails with it.)
+RuntimeDirectory=host-metrics-mqtt
+RuntimeDirectoryMode=0700
+ExecStartPre=+/usr/bin/install -m 0600 -o host-metrics -g host-metrics /etc/host-metrics-mqtt/config.yaml /run/host-metrics-mqtt/config.yaml
+ExecStart=/usr/bin/python3 /opt/host-metrics-mqtt/host-metrics-mqtt.py --config /run/host-metrics-mqtt/config.yaml
 Environment=PYTHONUNBUFFERED=1
 
 Restart=always
