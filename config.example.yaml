@@ -1,4 +1,5 @@
 # host-metrics-mqtt - example configuration
+# https://github.com/Kyobinoyo/host-metrics-mqtt
 # Copy to /etc/host-metrics-mqtt/config.yaml and adjust.
 # Every option is optional. Values shown are the defaults unless marked "example".
 
