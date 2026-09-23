@@ -1,0 +1,35 @@
+[Unit]
+Description=Publish host metrics to Home Assistant via MQTT
+Documentation=https://hub.monkey-pride.ts.net:3030/kyobinoyo/olympus-documentation/src/branch/main/hosts/iris.md
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Type=simple
+User=host-metrics
+Group=host-metrics
+# vcgencmd fallback on a Raspberry Pi needs the video group.
+SupplementaryGroups=video
+
+# Config stays root-only on disk; systemd hands a private copy to the service.
+LoadCredential=config:/etc/host-metrics-mqtt/config.yaml
+ExecStart=/usr/bin/python3 /opt/homelab-scripts/host-metrics-mqtt.py
+Environment=PYTHONUNBUFFERED=1
+
+Restart=always
+RestartSec=10
+
+# Hardening. No ProtectSystem= on purpose: it would make "/" read-only inside the
+# service namespace and break the read-only filesystem detection.
+NoNewPrivileges=yes
+PrivateTmp=yes
+ProtectHome=yes
+ProtectKernelModules=yes
+ProtectControlGroups=yes
+RestrictAddressFamilies=AF_INET AF_INET6 AF_UNIX AF_NETLINK
+RestrictRealtime=yes
+LockPersonality=yes
+MemoryMax=96M
+
+[Install]
+WantedBy=multi-user.target

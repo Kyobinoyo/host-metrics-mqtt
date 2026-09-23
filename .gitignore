@@ -1,0 +1,7 @@
+# local configs contain MQTT credentials
+config.yaml
+*.local.yaml
+
+# Python
+__pycache__/
+*.pyc

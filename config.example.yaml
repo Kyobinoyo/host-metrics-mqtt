@@ -1,0 +1,58 @@
+# host-metrics-mqtt - example configuration
+# Copy to /etc/host-metrics-mqtt/config.yaml and adjust.
+# Every option is optional. Values shown are the defaults unless marked "example".
+
+mqtt:
+  host: 192.168.1.10            # example - default: localhost
+  port: 1883
+  username: host-metrics        # example - default: none
+  password: 'change-me'         # example - use single quotes; write a ' inside as ''
+  # password_file: /path/to/file  # must be readable by the service user
+  # client_id: ""               # default: host-metrics-<node_id>
+  keepalive: 60
+  tls: false
+  # tls_ca: /etc/ssl/certs/ca-certificates.crt
+  tls_insecure: false
+
+homeassistant:
+  discovery_prefix: homeassistant
+  status_topic: homeassistant/status
+
+device:
+  # node_id: myhost             # default: hostname - part of topics and unique IDs, keep it stable
+  # name: My Host               # default: hostname - device name in Home Assistant
+  base_topic: host-metrics
+
+general:
+  interval: 30                  # seconds between two measurements (min. 5)
+  expire_after: auto            # seconds until values turn "unavailable"; auto = 3 x interval, 0 = off
+  language: en                  # en or de - entity names
+  flags: text                   # yes/no values (throttled, read-only, ...): text = "Yes"/"No",
+                                # binary = binary_sensor, shown by HA as "OK"/"Problem"
+  log_level: INFO
+
+metrics:
+  cpu: true
+  temperature: true
+  temperature_sensor: auto      # or a psutil sensor name, e.g. cpu_thermal, coretemp
+  frequency: true
+  load: true
+  memory: true
+  swap: true
+  processes: true
+  uptime: true
+  system_info: true             # kernel and OS version
+  # disks, network and block_devices take a list or a mapping name -> label.
+  # The label is used in the entity names, e.g. "SD card system usage".
+  # Without a label: / = "Root filesystem", /boot = "Boot partition", mmcblk0 = "SD card".
+  disks: [/]                    # mount points, e.g. [/, /boot, /mnt/data]
+  # disks:
+  #   /: SD card system
+  #   /mnt/data: USB drive
+  network: auto                 # interfaces, e.g. [eth0, wlan0] - auto skips lo, docker, veth, bridges
+  # network:
+  #   eth0: LAN
+  block_devices: auto           # I/O rates per device, e.g. [mmcblk0, sda] - false to disable
+  raspberry_pi: auto            # under-voltage / throttling, auto = only on a Raspberry Pi
+  updates: true                 # pending apt updates (Debian based systems)
+  updates_interval: 3600
