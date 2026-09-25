@@ -253,6 +253,7 @@ the entities.
 
 ## Tested on
 
+- Raspberry Pi 4 Model B, Raspberry Pi OS 13 (trixie), systemd 257
 - Raspberry Pi 4 Model B, Raspberry Pi OS 11 (bullseye), systemd 247
 - paho-mqtt 1.5.1, 1.6.1 and 2.1
 
